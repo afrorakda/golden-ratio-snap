@@ -84,6 +84,8 @@
             opacity: 1 !important;
             text-align: center;
         }
+        /* 2段階薄く調整したプレースホルダー */
+        .input-box::placeholder { color: #ddd; -webkit-text-fill-color: #ddd; }
 
         .result-grid {
             display: grid;
@@ -99,13 +101,21 @@
             cursor: pointer;
             transition: all 0.1s;
             position: relative;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
         .result-card:active { transform: scale(0.96); background: var(--input-bg); }
         .result-card:hover { border-color: var(--main); }
 
-        .label { font-size: 0.7rem; font-weight: 800; color: #999; margin-bottom: 5px; display: block; text-transform: uppercase; }
-        .value { font-size: 1.4rem; font-weight: 900; color: var(--main); }
-        .copy-hint { font-size: 0.6rem; font-weight: 700; color: #ccc; margin-top: 5px; }
+        .label { font-size: 0.7rem; font-weight: 800; color: #999; margin-bottom: 5px; display: block; text-transform: uppercase; pointer-events: none; }
+        .value { font-size: 1.4rem; font-weight: 900; color: var(--main); pointer-events: none; }
+        .copy-hint { font-size: 0.6rem; font-weight: 700; color: #ccc; margin-top: 5px; pointer-events: none; }
+        
+        /* Copied State */
+        .result-card.copied .value { color: #27ae60; font-size: 1.1rem; }
+        .result-card.copied .copy-hint { color: #27ae60; }
 
         footer { margin-top: 50px; font-size: 11px; color: #aaa; line-height: 1.8; }
         .footer-btns { margin-top: 30px; }
@@ -129,13 +139,6 @@
             border-radius: var(--radius); text-align: left; position: relative;
         }
         .close-x { position: absolute; top: 15px; right: 20px; font-size: 20px; color: #ccc; cursor: pointer; }
-
-        /* Toast notifications */
-        .toast {
-            position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
-            background: var(--main); color: #fff; padding: 8px 20px; border-radius: 20px;
-            font-size: 12px; font-weight: 700; opacity: 0; transition: opacity 0.3s;
-        }
     </style>
 </head>
 <body>
@@ -153,19 +156,17 @@
     </div>
 
     <div class="result-grid">
-        <div class="result-card" onclick="copyValue('smaller')">
+        <div class="result-card" id="cardSmaller" onclick="copyValue('smaller')">
             <span class="label">Smaller Side</span>
             <div id="smallerVal" class="value">0</div>
-            <div class="copy-hint">Tap to Copy</div>
+            <div id="hintSmaller" class="copy-hint">Tap to Copy</div>
         </div>
-        <div class="result-card" onclick="copyValue('larger')">
+        <div class="result-card" id="cardLarger" onclick="copyValue('larger')">
             <span class="label">Larger Side</span>
             <div id="largerVal" class="value">0</div>
-            <div class="copy-hint">Tap to Copy</div>
+            <div id="hintLarger" class="copy-hint">Tap to Copy</div>
         </div>
     </div>
-
-    <div id="toast" class="toast">Copied!</div>
 
     <div class="footer-btns">
         <a href="https://ko-fi.com/afrorakda" target="_blank" class="kofi-btn">☕️buy me a coffee</a>
@@ -211,8 +212,7 @@
         smallerEl.innerText = smaller;
         largerEl.innerText = larger;
 
-        // Update visual preview
-        // Max height is 100px, width is 100 * 1.618
+        // Visual Preview Scale
         const pHeight = 60;
         const pWidth = pHeight * phi;
         previewBox.style.height = pHeight + 'px';
@@ -220,14 +220,28 @@
     }
 
     function copyValue(type) {
-        const id = type === 'smaller' ? 'smallerVal' : 'largerVal';
-        const text = document.getElementById(id).innerText;
-        if (text === '0') return;
+        const valId = type === 'smaller' ? 'smallerVal' : 'largerVal';
+        const cardId = type === 'smaller' ? 'cardSmaller' : 'cardLarger';
+        const hintId = type === 'smaller' ? 'hintSmaller' : 'hintLarger';
+        
+        const valEl = document.getElementById(valId);
+        const cardEl = document.getElementById(cardId);
+        const hintEl = document.getElementById(hintId);
+        
+        const originalValue = valEl.innerText;
+        if (originalValue === '0') return;
 
-        navigator.clipboard.writeText(text).then(() => {
-            const toast = document.getElementById('toast');
-            toast.style.opacity = '1';
-            setTimeout(() => toast.style.opacity = '0', 2000);
+        navigator.clipboard.writeText(originalValue).then(() => {
+            // UI Feedback
+            cardEl.classList.add('copied');
+            valEl.innerText = 'Copied!';
+            hintEl.innerText = 'Added to Clipboard';
+
+            setTimeout(() => {
+                cardEl.classList.remove('copied');
+                valEl.innerText = originalValue;
+                hintEl.innerText = 'Tap to Copy';
+            }, 1500);
         });
     }
 
