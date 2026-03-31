@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Golden Ratio Snap</title>
+    
+    <link rel="icon" href="image_50.png">
+    <link rel="apple-touch-icon" href="image_50.png">
+
+    <style>
+        :root {
+            --main: #333;
+            --bg: #fff;
+            --accent: #eee;
+            --input-bg: #fafafa;
+            --radius: 15px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--main);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 420px;
+            padding: 40px 20px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 8px; letter-spacing: -1px; }
+        .subtitle { font-size: 0.85rem; color: #666; font-weight: 500; margin-bottom: 30px; }
+
+        /* Preview Area */
+        .preview-container {
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            background: #fdfdfd;
+            border-radius: var(--radius);
+            border: 1px dashed #ddd;
+            overflow: hidden;
+        }
+        .ratio-box {
+            background: var(--main);
+            border-radius: 4px;
+            transition: width 0.3s ease, height 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .input-container {
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        .input-box {
+            width: 100%;
+            padding: 18px;
+            border: 2px solid var(--accent);
+            border-radius: var(--radius);
+            background: var(--input-bg);
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--main) !important;
+            box-sizing: border-box;
+            outline: none;
+            -webkit-appearance: none;
+            -webkit-text-fill-color: var(--main) !important;
+            opacity: 1 !important;
+            text-align: center;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .result-card {
+            background: #fff;
+            border: 2px solid #f0f0f0;
+            border-radius: var(--radius);
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.1s;
+            position: relative;
+        }
+        .result-card:active { transform: scale(0.96); background: var(--input-bg); }
+        .result-card:hover { border-color: var(--main); }
+
+        .label { font-size: 0.7rem; font-weight: 800; color: #999; margin-bottom: 5px; display: block; text-transform: uppercase; }
+        .value { font-size: 1.4rem; font-weight: 900; color: var(--main); }
+        .copy-hint { font-size: 0.6rem; font-weight: 700; color: #ccc; margin-top: 5px; }
+
+        footer { margin-top: 50px; font-size: 11px; color: #aaa; line-height: 1.8; }
+        .footer-btns { margin-top: 30px; }
+        .kofi-btn {
+            display: inline-block; background: var(--main); color: #fff;
+            padding: 12px 25px; border-radius: var(--radius);
+            text-decoration: none; font-weight: bold; font-size: 14px; margin-bottom: 12px;
+        }
+        .home-btn {
+            display: block; width: 60%; margin: 0 auto; background: var(--accent);
+            color: var(--main); border: none; padding: 10px;
+            border-radius: var(--radius); font-weight: 700; font-size: 13px; cursor: pointer;
+        }
+
+        #modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 100;
+        }
+        .modal-content {
+            background: #fff; width: 85%; max-width: 320px; padding: 30px;
+            border-radius: var(--radius); text-align: left; position: relative;
+        }
+        .close-x { position: absolute; top: 15px; right: 20px; font-size: 20px; color: #ccc; cursor: pointer; }
+
+        /* Toast notifications */
+        .toast {
+            position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
+            background: var(--main); color: #fff; padding: 8px 20px; border-radius: 20px;
+            font-size: 12px; font-weight: 700; opacity: 0; transition: opacity 0.3s;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Golden Ratio Snap</h1>
+    <p class="subtitle">Enter one size to find the golden match.</p>
+
+    <div class="preview-container">
+        <div id="previewBox" class="ratio-box">1 : 1.618</div>
+    </div>
+
+    <div class="input-container">
+        <input type="number" class="input-box" id="numInput" placeholder="Enter size (px/pt)" oninput="calcRatio()" autofocus>
+    </div>
+
+    <div class="result-grid">
+        <div class="result-card" onclick="copyValue('smaller')">
+            <span class="label">Smaller Side</span>
+            <div id="smallerVal" class="value">0</div>
+            <div class="copy-hint">Tap to Copy</div>
+        </div>
+        <div class="result-card" onclick="copyValue('larger')">
+            <span class="label">Larger Side</span>
+            <div id="largerVal" class="value">0</div>
+            <div class="copy-hint">Tap to Copy</div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">Copied!</div>
+
+    <div class="footer-btns">
+        <a href="https://ko-fi.com/afrorakda" target="_blank" class="kofi-btn">☕️buy me a coffee</a>
+        <button class="home-btn" onclick="showModal()">Add to Home Screen</button>
+    </div>
+
+    <footer>
+        <div>No login / No tracking / No ads / Browser only</div>
+        <div>Privacy Policy / afrorakda © 2026</div>
+    </footer>
+</div>
+
+<div id="modal" onclick="hideModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <span class="close-x" onclick="hideModal()">×</span>
+        <h3>📱 Install</h3>
+        <p>Add to your home screen.</p>
+        <p>🍏 <strong>iPhone (Safari):</strong><br>Tap Share, then Add to Home Screen.</p>
+        <p>🤖 <strong>Android (Chrome):</strong><br>Tap Menu (⋮), then Add to Home Screen.</p>
+    </div>
+</div>
+
+<script>
+    const phi = 1.61803398875;
+
+    function calcRatio() {
+        const val = parseFloat(document.getElementById('numInput').value);
+        const smallerEl = document.getElementById('smallerVal');
+        const largerEl = document.getElementById('largerVal');
+        const previewBox = document.getElementById('previewBox');
+
+        if (!val || val <= 0) {
+            smallerEl.innerText = '0';
+            largerEl.innerText = '0';
+            previewBox.style.width = '50px';
+            previewBox.style.height = '31px';
+            return;
+        }
+
+        const smaller = Math.round(val / phi);
+        const larger = Math.round(val * phi);
+
+        smallerEl.innerText = smaller;
+        largerEl.innerText = larger;
+
+        // Update visual preview
+        // Max height is 100px, width is 100 * 1.618
+        const pHeight = 60;
+        const pWidth = pHeight * phi;
+        previewBox.style.height = pHeight + 'px';
+        previewBox.style.width = pWidth + 'px';
+    }
+
+    function copyValue(type) {
+        const id = type === 'smaller' ? 'smallerVal' : 'largerVal';
+        const text = document.getElementById(id).innerText;
+        if (text === '0') return;
+
+        navigator.clipboard.writeText(text).then(() => {
+            const toast = document.getElementById('toast');
+            toast.style.opacity = '1';
+            setTimeout(() => toast.style.opacity = '0', 2000);
+        });
+    }
+
+    function showModal() { document.getElementById('modal').style.display = 'flex'; }
+    function hideModal() { document.getElementById('modal').style.display = 'none'; }
+</script>
+
+</body>
+</html>
