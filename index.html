@@ -71,7 +71,7 @@
         .input-box {
             width: 100%;
             padding: 18px;
-            padding-right: 50px;
+            padding-right: 60px;
             border: 2px solid var(--accent);
             border-radius: var(--radius);
             background: var(--input-bg);
@@ -87,14 +87,15 @@
         }
         .input-box::placeholder { color: #ddd; -webkit-text-fill-color: #ddd; }
 
+        /* 視認性向上: clrボタン */
         .clear-btn {
             position: absolute;
             right: 15px;
-            bottom: 12px;
+            bottom: 11px;
             background: none;
             border: none;
-            color: #ddd;
-            font-size: 0.8rem;
+            color: #bbb; /* 一段階濃く */
+            font-size: 0.95rem; /* 大きく */
             font-weight: 800;
             cursor: pointer;
             padding: 5px;
@@ -117,7 +118,7 @@
             cursor: pointer;
             transition: all 0.1s;
             position: relative;
-            min-height: 80px;
+            min-height: 90px; /* 少し高く */
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -125,11 +126,13 @@
         .result-card:active { transform: scale(0.96); background: var(--input-bg); }
         .result-card:hover { border-color: var(--main); }
 
-        .label { font-size: 0.7rem; font-weight: 800; color: #999; margin-bottom: 5px; display: block; text-transform: uppercase; pointer-events: none; }
-        .value { font-size: 1.4rem; font-weight: 900; color: var(--main); pointer-events: none; }
-        .copy-hint { font-size: 0.6rem; font-weight: 700; color: #ccc; margin-top: 5px; pointer-events: none; }
+        .label { font-size: 0.75rem; font-weight: 800; color: #999; margin-bottom: 5px; display: block; text-transform: uppercase; pointer-events: none; }
+        .value { font-size: 1.5rem; font-weight: 900; color: var(--main); pointer-events: none; }
         
-        .result-card.copied .value { color: #27ae60; font-size: 1.1rem; }
+        /* 視認性向上: Tap to Copy */
+        .copy-hint { font-size: 0.8rem; font-weight: 700; color: #999; margin-top: 8px; pointer-events: none; }
+        
+        .result-card.copied .value { color: #27ae60; font-size: 1.2rem; }
         .result-card.copied .copy-hint { color: #27ae60; }
 
         footer { margin-top: 50px; font-size: 11px; color: #aaa; line-height: 1.8; }
@@ -167,18 +170,18 @@
     </div>
 
     <div class="input-container">
-        <input type="number" class="input-box" id="numInput" placeholder="Enter size (px/pt)" oninput="handleInput()" autofocus>
+        <input type="number" class="input-box" id="numInput" placeholder="Size" oninput="handleInput()" autofocus>
         <button class="clear-btn" id="clearBtn" onclick="clearInput()">clr</button>
     </div>
 
     <div class="result-grid">
         <div class="result-card" id="cardSmaller" onclick="copyValue('smaller')">
-            <span class="label">Smaller Side</span>
+            <span class="label">Smaller</span>
             <div id="smallerVal" class="value">0</div>
             <div id="hintSmaller" class="copy-hint">Tap to Copy</div>
         </div>
         <div class="result-card" id="cardLarger" onclick="copyValue('larger')">
-            <span class="label">Larger Side</span>
+            <span class="label">Larger</span>
             <div id="largerVal" class="value">0</div>
             <div id="hintLarger" class="copy-hint">Tap to Copy</div>
         </div>
