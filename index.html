@@ -71,6 +71,7 @@
         .input-box {
             width: 100%;
             padding: 18px;
+            padding-right: 50px;
             border: 2px solid var(--accent);
             border-radius: var(--radius);
             background: var(--input-bg);
@@ -84,8 +85,23 @@
             opacity: 1 !important;
             text-align: center;
         }
-        /* 2段階薄く調整したプレースホルダー */
         .input-box::placeholder { color: #ddd; -webkit-text-fill-color: #ddd; }
+
+        .clear-btn {
+            position: absolute;
+            right: 15px;
+            bottom: 12px;
+            background: none;
+            border: none;
+            color: #ddd;
+            font-size: 0.8rem;
+            font-weight: 800;
+            cursor: pointer;
+            padding: 5px;
+            display: none;
+            -webkit-appearance: none;
+        }
+        .clear-btn.active { display: block; }
 
         .result-grid {
             display: grid;
@@ -113,7 +129,6 @@
         .value { font-size: 1.4rem; font-weight: 900; color: var(--main); pointer-events: none; }
         .copy-hint { font-size: 0.6rem; font-weight: 700; color: #ccc; margin-top: 5px; pointer-events: none; }
         
-        /* Copied State */
         .result-card.copied .value { color: #27ae60; font-size: 1.1rem; }
         .result-card.copied .copy-hint { color: #27ae60; }
 
@@ -152,7 +167,8 @@
     </div>
 
     <div class="input-container">
-        <input type="number" class="input-box" id="numInput" placeholder="Enter size (px/pt)" oninput="calcRatio()" autofocus>
+        <input type="number" class="input-box" id="numInput" placeholder="Enter size (px/pt)" oninput="handleInput()" autofocus>
+        <button class="clear-btn" id="clearBtn" onclick="clearInput()">clr</button>
     </div>
 
     <div class="result-grid">
@@ -191,9 +207,27 @@
 
 <script>
     const phi = 1.61803398875;
+    const inputEl = document.getElementById('numInput');
+    const clearBtn = document.getElementById('clearBtn');
+
+    function handleInput() {
+        if (inputEl.value.length > 0) {
+            clearBtn.classList.add('active');
+        } else {
+            clearBtn.classList.remove('active');
+        }
+        calcRatio();
+    }
+
+    function clearInput() {
+        inputEl.value = '';
+        clearBtn.classList.remove('active');
+        inputEl.focus();
+        calcRatio();
+    }
 
     function calcRatio() {
-        const val = parseFloat(document.getElementById('numInput').value);
+        const val = parseFloat(inputEl.value);
         const smallerEl = document.getElementById('smallerVal');
         const largerEl = document.getElementById('largerVal');
         const previewBox = document.getElementById('previewBox');
@@ -212,7 +246,6 @@
         smallerEl.innerText = smaller;
         largerEl.innerText = larger;
 
-        // Visual Preview Scale
         const pHeight = 60;
         const pWidth = pHeight * phi;
         previewBox.style.height = pHeight + 'px';
@@ -232,7 +265,6 @@
         if (originalValue === '0') return;
 
         navigator.clipboard.writeText(originalValue).then(() => {
-            // UI Feedback
             cardEl.classList.add('copied');
             valEl.innerText = 'Copied!';
             hintEl.innerText = 'Added to Clipboard';
